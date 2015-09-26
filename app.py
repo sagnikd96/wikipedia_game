@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from functools import wraps
 import sqlite3
 from forms import LoginForm
-from flask.ext.login import LoginManager, login_user, login_required
+from flask.ext.login import LoginManager, login_user, login_required, UserMixin, logout_user
 
 app = Flask(__name__)
 
@@ -12,36 +12,29 @@ app.secret_key = "my precious"
 app.database = "sample.db"
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "users.login"
+login_manager.login_view = "login"
 
-class User():
-    def __init__(self, idd):
-        is_authenticated = False
-        is_active = True
-        is_anonymous = False
-        id_num = idd
+class User(UserMixin):
+    # proxy for a database of users
+    user_database = {"JohnDoe": ("JohnDoe", "John"),
+               "JaneDoe": ("JaneDoe", "Jane")}
 
-    def get_id(self):
-        return id_num
+    def __init__(self, username, password):
+        self.id = username
+        self.password = password
 
-    def authenticate(self):
-        is_authenticated = True
+    @classmethod
+    def get(cls,idd):
+        return cls.user_database.get(idd)
 
-    def unauthenticate(self):
-        is_authenticated = False
 
-"""
-# login required decorator
-def login_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return f(*args, **kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('login'))
-    return wrap
-"""
+@login_manager.user_loader
+def load_user(user_id):
+    result = User.get(user_id)
+    if result:
+        return User(result[0], result[1])
+    else:
+        return None
 
 @app.route('/')
 @login_required
@@ -63,25 +56,23 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-                error = 'Invalid Creds. Try again.'
+            username = request.form['username']
+            password = request.form['password']
+            if (not username in User.user_database) or password != User.get(username)[1]:
+                error = "Invalid Creds. Try again."
             else:
-                #session['logged_in'] = True
-                login_user(User("admin"))
+                login_user(load_user(username))
                 flash("You were just logged in")
                 return redirect(url_for('welcome'))
         else:
             return render_template("login.html", form=form, error=error)
     return render_template('login.html', form=form, error=error)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return "admin"
 
 @app.route('/logout')
 @login_required
 def logout():
-    session.pop('logged_in', None)
+    logout_user()
     flash("You were just logged out")
     return redirect(url_for('home'))
 
