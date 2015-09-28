@@ -4,13 +4,57 @@ MARKET_FEE_NEW_ITEM = 5
 MARKET_FEE_CHANGE_PRICE = 5
 
 class Problem():
-    def __init__(self, name, answer, base_points, multiplier):
+    def __init__(self, name, display_name, answer, base_points, multiplier):
         self.name = name
+        self.display_name = display_name
         self.answer = answer
         self.base_points = base_points
         self.multiplier = multiplier
         self.times_solved = 1
         self.points = base_points
+
+    def get_id(self):
+        return name
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.name == other.name and \
+               self.display_name == other.display_name and \
+               self.answer == other.answer and \
+               self.base_points == other.base_points and \
+               self.multiplier == other.multiplier and \
+               self.times_solved == other.times_solved and \
+               self.points == other.points
+        else:
+            return False
+
+    def __neq__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return ", ".join([self.name,
+                          self.display_name,
+                          self.answer,
+                          str(self.base_points),
+                          str(self.multiplier),
+                          str(self.times_solved),
+                          str(self.points)
+                          ])
+
+    @staticmethod
+    def fromString(string):
+        components = string.split(", ")
+        name = components[0]
+        display_name = components[1]
+        answer = components[2]
+        base_points = int(components[3])
+        multiplier = float(components[4])
+        times_solved = int(components[5])
+        points = int(components[6])
+        problem = Problem(name, display_name, answer, base_points, multiplier)
+        problem.times_solved = times_solved
+        problem.points = points
+        return problem
 
     def submit_solution(self, solution):
         if solution == self.answer:
@@ -21,15 +65,30 @@ class Problem():
         else:
             return (False, 0)
 
-
 class User(UserMixin):
     # Create user database here
     user_database = {"test": ("test", "Test Display", "password")}
 
-    def __init__(self, name, display_name, password_hash, starting_points):
+    def __init__(self, name, display_name, password_hash):
         self.name = name
         self.display_name = display_name
         self.password_hash = password_hash
+
+    @classmethod
+    def get(cls,name):
+        """
+        Returns the name if name is a valid user, else, returns None
+        """
+        if name in User.user_database:
+            return name
+        else:
+            return None
+
+class UserLogic():
+
+    def __init__(self, name, display_name, starting_points):
+        self.name = name
+        self.display_name = display_name
         self.starting_points = starting_points
         self.points_for_solving = 0
         self.points_for_selling = 0
@@ -38,12 +97,58 @@ class User(UserMixin):
         self.solutions_bought = [] # List of problems
         self.solutions_sold = [] # List of commodities
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.name == other.name
+        else:
+            return False
+
+    def __neq__(self, other):
+        return not self==other
+
+    def __str__(self):
+        f = lambda x: x.name
+        string_problems_solved = str(list(map(f, self.problems_solved)))
+        string_solutions_bought = str(list(map(f, self.solutions_bought)))
+        string_solutions_sold = "[" + " :: ".join(list(map(lambda x: str(x), self.solutions_sold))) + "]"
+        return " ::: ".join([self.name,
+                self.display_name,
+                str(self.starting_points),
+                str(self.points_for_solving),
+                str(self.points_for_selling),
+                str(self.expenditure),
+                string_problems_solved,
+                string_solutions_bought,
+                string_solutions_sold
+                ])
+
+
+    @staticmethod
+    def fromString(string):
+        f = lambda x: x[1:-1]
+
+        parts = string.split(" ::: ")
+        name = parts[0]
+        display_name = parts[1]
+        starting_points = int(parts[2])
+        points_for_solving = int(parts[3])
+        points_for_selling = int(parts[4])
+        expenditure = int(parts[5])
+        problems_solved = list(map(f, parts[6][1:-1].split(", ")))
+        solutions_bought = list(map(f, parts[7][1:-1].split(", ")))
+        solutions_sold = list(map(lambda x: Commodity.fromString(x), parts[8][1:-1].split(" :: ")))
+        return [name, display_name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold]
+
     def get_capital(self):
         return self.starting_points + self.points_for_solving + self.points_for_selling - self.expenditure
+
+    def get_solved_problems(self):
+        return self.problems_solved
 
     def solve_problem(self, problem, solution):
         result, points = problem.submit_solution(solution)
         if result and not problem in self.problems_solved:
+            problem.times_solved += 1
             self.problems_solved.append(problem)
             self.points_for_solving += points
             return True
@@ -73,22 +178,13 @@ class User(UserMixin):
         price = commodity.price
         if not problem in self.problems_solved and self.get_capital() >= price:
             results, points = problem.submit_solution(problem.answer)
+            problem.times_solved += 1
             self.problems_solved.append(problem)
             self.points_for_solving += points
             self.expenditure += price
             return True
         else:
             return False
-
-    @classmethod
-    def get(cls,name):
-        """
-        Returns the name if name is a valid user, else, returns None
-        """
-        if name in User.user_database:
-            return name
-        else:
-            return None
 
 class Commodity():
     def __init__(self, problem, seller, price):
@@ -104,6 +200,14 @@ class Commodity():
 
     def __neq__(self, other):
         return not self.__eq__(other)
+
+    def __str__(self):
+        return ", ".join([self.problem.name, self.seller.name, str(self.price)])
+
+    @staticmethod
+    def fromString(string):
+        parsed = string.split(", ")
+        return (parsed[0], parsed[1], int(parsed[2]))
 
     def get_price(self):
         return self.price
