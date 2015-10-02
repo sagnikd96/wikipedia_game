@@ -140,13 +140,16 @@ class UserLogicTests(unittest.TestCase):
         a3 = lg.Problem("c", "A", 1, 40, 0.5)
         a4 = lg.Problem("d", "A", 1, 40, 0.5)
         b1 = lg.UserLogic("user1", 100)
+        b2 = lg.UserLogic("user2", 100)
         c1 = lg.Commodity(a1, b1, 120)
         c2 = lg.Commodity(a2, b1, 120)
         b1.problems_solved = [a1, a2, a3, a4]
         b1.solutions_bought = [a3, a4]
         b1.solutions_sold = [c1, c2]
-        expected = ["user1", 100, 0, 0, 0, ["a", "b", "c", "d"], ["c", "d"], [("a", "user1", 120), ("b", "user1", 120)]]
-        self.assertTrue(lg.UserLogic.fromString(str(b1)) == expected )
+        expected1 = ["user1", 100, 0, 0, 0, ["a", "b", "c", "d"], ["c", "d"], [("a", "user1", 120), ("b", "user1", 120)]]
+        expected2 = ["user2", 100, 0, 0, 0, [], [], []]
+        self.assertTrue(lg.UserLogic.fromString(str(b1)) == expected1)
+        self.assertTrue(lg.UserLogic.fromString(str(b2)) == expected2)
 
 
 class CommodityTests(unittest.TestCase):

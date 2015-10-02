@@ -1,7 +1,24 @@
 import redis
 from time import sleep
 
-class RedisWriteLock(): # Sticking to this. Hope doesn't lead to a deadlock.
+class RedisLock(): # Sticking to this. Hope doesn't lead to a deadlock.
+    def __init__(self, redis_connection, param, waiting_interval = 0.01, ttl = None):
+        self.redis_connection = redis_connection
+        self.param = param
+        self.lock = param + "_lock"
+        self.waiting_interval = waiting_interval
+        self.ttl = ttl
+
+    def __enter__(self):
+        while not self.redis_connection.setnx(self.lock, "taken"):
+            sleep(self.waiting_interval)
+        if self.ttl:
+            self.redis_connection.expire(self.lock, self.ttl)
+
+    def __exit__(self, type, value, traceback):
+        self.redis_connection.delete(self.lock)
+
+class RedisWriteLock():
     def __init__(self, redis_connection, param, waiting_interval = 0.01, ttl = None):
         self.redis_connection = redis_connection
         self.param = param
@@ -16,13 +33,12 @@ class RedisWriteLock(): # Sticking to this. Hope doesn't lead to a deadlock.
         while not self.redis_connection.setnx(self.read_lock, "taken"):
             sleep(self.waiting_interval)
         if self.ttl:
-            redis_connection.expire(self.write_lock, ttl)
-            redis_connection.expire(self.read_lock, ttl)
+            self.redis_connection.expire(self.write_lock, self.ttl)
+            self.redis_connection.expire(self.read_lock, self.ttl)
 
     def __exit__(self, type, value, traceback):
         self.redis_connection.delete(self.read_lock)
         self.redis_connection.delete(self.write_lock)
-
 
 class RedisReadLock(): # Not sure if this leads to a deadlock? Kinda risky. Will stick to the other lock for now.
     def __init__(self, redis_connection, param, waiting_interval = 0.01, ttl = None):

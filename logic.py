@@ -108,14 +108,26 @@ class UserLogic():
 
         parts = string.split(" ::: ")
         name = parts[0]
-        #display_name = parts[1]
         starting_points = int(parts[1])
         points_for_solving = int(parts[2])
         points_for_selling = int(parts[3])
         expenditure = int(parts[4])
-        problems_solved = list(map(f, parts[5][1:-1].split(", ")))
-        solutions_bought = list(map(f, parts[6][1:-1].split(", ")))
-        solutions_sold = list(map(lambda x: Commodity.fromString(x), parts[7][1:-1].split(" :: ")))
+
+        if ", " in parts[5][1:-1]:
+            problems_solved = list(map(f, parts[5][1:-1].split(", ")))
+        else:
+            problems_solved = []
+
+        if ", " in parts[6][1:-1]:
+            solutions_bought = list(map(f, parts[6][1:-1].split(", ")))
+        else:
+            solutions_bought = []
+
+        if ", " in parts[7][1:-1]:
+            solutions_sold = list(map(lambda x: Commodity.fromString(x), parts[7][1:-1].split(" :: ")))
+        else:
+            solutions_sold = []
+
         return [name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold]
 
     def get_capital(self):
@@ -186,7 +198,10 @@ class Commodity():
     @staticmethod
     def fromString(string):
         parsed = string.split(", ")
-        return (parsed[0], parsed[1], int(parsed[2]))
+        try:
+            return (parsed[0], parsed[1], int(parsed[2]))
+        except IndexError:
+            return None
 
     def get_price(self):
         return self.price
