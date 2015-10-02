@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Upload your source code</h1>
+<br>
+<form role="form" method="post" action="" enctype=multipart/form-data>
+  {{ form.csrf_token }}
+  <p>
+    {{ form.source(placeholder="source") }}
+    <span class="error">
+      {% if form.source.errors %}
+        {% for error in form.source.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+  </p>
+  <button class="btn btn-sm btn-success" type="submit">Upload</button>
+</form>
+
+{% endblock %}

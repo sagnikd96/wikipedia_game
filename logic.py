@@ -1,5 +1,3 @@
-from flask.ext.login import UserMixin
-
 MARKET_FEE_NEW_ITEM = 5
 MARKET_FEE_CHANGE_PRICE = 5
 
@@ -65,30 +63,11 @@ class Problem():
         else:
             return (False, 0)
 
-class User(UserMixin):
-    # Create user database here
-    user_database = {"test": ("test", "Test Display", "password")}
-
-    def __init__(self, name, display_name, password_hash):
-        self.name = name
-        self.display_name = display_name
-        self.password_hash = password_hash
-
-    @classmethod
-    def get(cls,name):
-        """
-        Returns the name if name is a valid user, else, returns None
-        """
-        if name in User.user_database:
-            return name
-        else:
-            return None
-
 class UserLogic():
 
-    def __init__(self, name, display_name, starting_points):
+    def __init__(self, name, starting_points):
         self.name = name
-        self.display_name = display_name
+        #self.display_name = display_name
         self.starting_points = starting_points
         self.points_for_solving = 0
         self.points_for_selling = 0
@@ -112,7 +91,7 @@ class UserLogic():
         string_solutions_bought = str(list(map(f, self.solutions_bought)))
         string_solutions_sold = "[" + " :: ".join(list(map(lambda x: str(x), self.solutions_sold))) + "]"
         return " ::: ".join([self.name,
-                self.display_name,
+                #self.display_name,
                 str(self.starting_points),
                 str(self.points_for_solving),
                 str(self.points_for_selling),
@@ -129,15 +108,15 @@ class UserLogic():
 
         parts = string.split(" ::: ")
         name = parts[0]
-        display_name = parts[1]
-        starting_points = int(parts[2])
-        points_for_solving = int(parts[3])
-        points_for_selling = int(parts[4])
-        expenditure = int(parts[5])
-        problems_solved = list(map(f, parts[6][1:-1].split(", ")))
-        solutions_bought = list(map(f, parts[7][1:-1].split(", ")))
-        solutions_sold = list(map(lambda x: Commodity.fromString(x), parts[8][1:-1].split(" :: ")))
-        return [name, display_name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold]
+        #display_name = parts[1]
+        starting_points = int(parts[1])
+        points_for_solving = int(parts[2])
+        points_for_selling = int(parts[3])
+        expenditure = int(parts[4])
+        problems_solved = list(map(f, parts[5][1:-1].split(", ")))
+        solutions_bought = list(map(f, parts[6][1:-1].split(", ")))
+        solutions_sold = list(map(lambda x: Commodity.fromString(x), parts[7][1:-1].split(" :: ")))
+        return [name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold]
 
     def get_capital(self):
         return self.starting_points + self.points_for_solving + self.points_for_selling - self.expenditure
