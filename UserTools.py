@@ -1,10 +1,16 @@
 from flask.ext.login import UserMixin
+from itertools import takewhile
 
 USER_FILE = "user_file.dat"
 
-def parse_user_file(filename):
-    user_database = {}
+def decomment(filename, comment="#"):
+    f = lambda x: x != comment
     for line in open(filename):
+        yield "".join(takewhile(f, line))
+
+def parse_user_file(filename, comment="#"):
+    user_database = {}
+    for line in decomment(filename, comment):
         try:
             name, display_name, password_hash = tuple(map(lambda x: x.strip(), line.strip().split(",")))
             user_database[name] = (name, display_name, password_hash)
