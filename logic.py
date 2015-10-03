@@ -134,6 +134,11 @@ class UserLogic():
 
         return [name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold]
 
+    @staticmethod
+    def scoreFromTuple(string_tuple):
+        _,start,solve,sell,expenses,_,_,_ = string_tuple
+        return start + solve + sell - expenses
+
     def get_capital(self):
         return self.starting_points + self.points_for_solving + self.points_for_selling - self.expenditure
 

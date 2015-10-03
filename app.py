@@ -9,6 +9,7 @@ from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB, COMMODITY_DB
 import redis
 import RedisConnect as rc
 from  InitiateRedis import check_database_initiated
+import logic as lg
 
 app = Flask(__name__)
 
@@ -67,13 +68,29 @@ def show_scores():
     for user, display_name in users:
         try:
             user_info = rc.get_user_from_redis(user, user_pool)
-            users_info.append((user, display_name, user_info[1]))
+            users_info.append((user, display_name, lg.UserLogic.scoreFromTuple(user_info)))
         except TypeError:
             pass
+    users_info.sort(key=lambda x: x[2], reverse=True)
     if current_user.is_anonymous:
         return render_template('scores.html', scores=users_info)
     else:
         return render_template('scores.html', scores=users_info, logged_in_user=current_user)
+
+@app.route('/stats')
+@login_required
+def stats():
+    return "In progress"
+
+@app.route('/problems')
+@login_required
+def problems():
+    return "In progress"
+
+@app.route('/market_console')
+@login_required
+def market_console():
+    return "In progress"
 
 if __name__=="__main__":
     import sys
