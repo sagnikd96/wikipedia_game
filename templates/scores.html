@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if logged_in_user %}
+<h1>Team scores - {{ logged_in_user.display_name }}</h1>
+{% else %}
+<h1>Team scores</h1>
+{% endif %}
+
+<ul>
+    {% for score in scores%}
+    {{ score }} <br>
+    {% endfor %}
+</ul>
+{% endblock %}

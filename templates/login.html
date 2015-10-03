@@ -1,8 +1,9 @@
-{% extends "base.html" %}
+<link href='static/login_nice.css' rel='stylesheet' type='text/css'>
+<div class="logo"></div>
+<div class="login-block">
 
-{% block content %}
-
-<h1>Please login</h1>
+<title>The Code Market: Login</title>
+<h1>Login</h1>
 <br>
 <form class="form-signin" role="form" method="post" action="">
   {{ form.csrf_token }}
@@ -24,9 +25,12 @@
           {{ error }}
         {% endfor %}
       {% endif %}
+      {% if error %}
+
+        {{ error.strip() }}
+      {% endif %}
     </span>
   </p>
   <button class="btn btn-sm btn-success" type="submit">Sign in</button>
 </form>
-
-{% endblock %}
+</div>

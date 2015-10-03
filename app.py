@@ -8,6 +8,7 @@ from UserTools import User
 from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB, COMMODITY_DB
 import redis
 import RedisConnect as rc
+from  InitiateRedis import check_database_initiated
 
 app = Flask(__name__)
 
@@ -53,14 +54,31 @@ def home():
     display_name = current_user.display_name
     return render_template('index.html', display_name=display_name)
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
 @app.route('/scores')
 def show_scores():
     users = [(user,User.user_database[user][1]) for user in User.user_database]
     users_info = []
     for user, display_name in users:
-        user_info = rc.get_user_from_redis(user, user_pool)
-        users_info.append((user, display_name, user_info[1]))
-    return str(users_info)
+        try:
+            user_info = rc.get_user_from_redis(user, user_pool)
+            users_info.append((user, display_name, user_info[1]))
+        except TypeError:
+            pass
+    if current_user.is_anonymous:
+        return render_template('scores.html', scores=users_info)
+    else:
+        return render_template('scores.html', scores=users_info, logged_in_user=current_user)
 
 if __name__=="__main__":
-    app.run(debug=True)
+    import sys
+    if check_database_initiated(user_pool):
+        app.run(host="0.0.0.0", debug=True)
+    else:
+        print("Users not initiated")
+        sys.exit(1)

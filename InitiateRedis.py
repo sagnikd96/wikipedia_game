@@ -13,6 +13,14 @@ def load_users_to_redis(filename, comment="#"):
     for user in user_database:
         current_user = str(UserLogic(user, STARTING_POINTS))
         connection.set(user, current_user)
+    connection.set("__initiated_users__", "True")
+
+def check_database_initiated(user_pool):
+    connection = redis.Redis(connection_pool = user_pool)
+    if connection.get("__initiated_users__") == b'True':
+        return True
+    else:
+        return False
 
 def delete_all_locks(pools):
     for pool in pools:
