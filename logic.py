@@ -2,7 +2,7 @@ MARKET_FEE_NEW_ITEM = 5
 MARKET_FEE_CHANGE_PRICE = 5
 
 class Problem():
-    def __init__(self, name, display_name, answer, base_points, multiplier):
+    def __init__(self, name, display_name, answer, base_points, multiplier, dependencies):
         self.name = name
         self.display_name = display_name
         self.answer = answer
@@ -10,6 +10,7 @@ class Problem():
         self.multiplier = multiplier
         self.times_solved = 1
         self.points = base_points
+        self.dependencies = dependencies # list of problem names
 
     def get_id(self):
         return name
@@ -22,7 +23,8 @@ class Problem():
                self.base_points == other.base_points and \
                self.multiplier == other.multiplier and \
                self.times_solved == other.times_solved and \
-               self.points == other.points
+               self.points == other.points and \
+               self.dependencies == other.dependencies
         else:
             return False
 
@@ -36,7 +38,8 @@ class Problem():
                           str(self.base_points),
                           str(self.multiplier),
                           str(self.times_solved),
-                          str(self.points)
+                          str(self.points),
+                          "{" + " : ".join(self.dependencies) + "}"
                           ])
 
     @staticmethod
@@ -49,7 +52,8 @@ class Problem():
         multiplier = float(components[4])
         times_solved = int(components[5])
         points = int(components[6])
-        problem = Problem(name, display_name, answer, base_points, multiplier)
+        dependencies = components[7][1:-1].split(" : ")
+        problem = Problem(name, display_name, answer, base_points, multiplier, dependencies)
         problem.times_solved = times_solved
         problem.points = points
         return problem
