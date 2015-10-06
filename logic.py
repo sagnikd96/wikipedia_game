@@ -8,7 +8,7 @@ class Problem():
         self.answer = answer
         self.base_points = base_points
         self.multiplier = multiplier
-        self.times_solved = 1
+        self.times_solved = 0
         self.points = base_points
         self.dependencies = dependencies # list of problem names
 
@@ -52,7 +52,7 @@ class Problem():
         multiplier = float(components[4])
         times_solved = int(components[5])
         points = int(components[6])
-        dependencies = components[7][1:-1].split(" : ")
+        dependencies = list(filter(lambda x: x != '', components[7][1:-1].split(" : ")))
         problem = Problem(name, display_name, answer, base_points, multiplier, dependencies)
         problem.times_solved = times_solved
         problem.points = points
@@ -133,6 +133,24 @@ class UserLogic():
             solutions_sold = []
 
         return [name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold]
+
+    @staticmethod
+    def toString(info_tuple):
+        name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold = info_tuple
+        string_problems_solved = str(problems_solved)
+        string_solutions_bought = str(solutions_bought)
+        string_solutions_sold = "[" + " :: ".join(list(map(lambda x: "'" + x + "'", solutions_sold))) + "]"
+        return " ::: ".join([name,
+                #self.display_name,
+                str(starting_points),
+                str(points_for_solving),
+                str(points_for_selling),
+                str(expenditure),
+                string_problems_solved,
+                string_solutions_bought,
+                string_solutions_sold
+                ])
+
 
     @staticmethod
     def scoreFromTuple(string_tuple):

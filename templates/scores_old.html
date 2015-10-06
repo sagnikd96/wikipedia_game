@@ -1,0 +1,44 @@
+<link href='static/navbar.css' rel='stylesheet' type='text/css'>
+<link href='static/table.css' rel='stylesheet' type='text/css'>
+<title>
+    {% if logged_in_user %}
+    Team scores - {{ logged_in_user.display_name }}
+    {% else %}
+    Team scores
+    {% endif %}
+</title>
+
+<body>
+    <div id="navigation">
+        {% if logged_in_user %}
+            <a href="#">Stats</a>
+            <a href="/scores">Scores</a>
+            <a href="#">Problems</a>
+            <a href="#">Console</a>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/scores">Scores</a>
+        {% endif %}
+    </div>
+    <div id="content">
+    <table id="ver-minimalist"
+           width="100%"
+           align="center">
+    <tr>
+        <th>Current position</th>
+        <th>Team name</th>
+        <th>Problems solved</th>
+        <th>Score</th>
+    </tr>
+    {% for position, score in scores %}
+    <tr>
+        <td>{{ position + 1 }}</td>
+        <td>{{ score[1] }}</td>
+        <td>{{ score[3] }}</td>
+        <td>{{ score[2] }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    </div>
+</body>

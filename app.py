@@ -68,19 +68,40 @@ def show_scores():
     for user, display_name in users:
         try:
             user_info = rc.get_user_from_redis(user, user_pool)
-            users_info.append((user, display_name, lg.UserLogic.scoreFromTuple(user_info)))
+            users_info.append((user, display_name, lg.UserLogic.scoreFromTuple(user_info), len(user_info[5])))
         except TypeError:
             pass
     users_info.sort(key=lambda x: x[2], reverse=True)
+    positions = enumerate(users_info)
     if current_user.is_anonymous:
-        return render_template('scores.html', scores=users_info)
+        return render_template('scores.html', scores=positions)
     else:
-        return render_template('scores.html', scores=users_info, logged_in_user=current_user)
+        return render_template('scores.html', scores=positions, logged_in_user=current_user)
 
 @app.route('/stats')
 @login_required
 def stats():
-    return "In progress"
+    username = current_user.name
+    user_info = rc.get_user_from_redis(username, user_pool)
+    user_stats = {}
+    user_stats['display_name'] = User.user_database[username][1]
+    user_stats['current_points'] = lg.UserLogic.scoreFromTuple(user_info)
+    user_stats['starting_points'] = user_info[1]
+    user_stats['points_for_solving'] = user_info[2]
+    user_stats['points_for_selling'] = user_info[3]
+    user_stats['expenditure'] = user_info[4]
+
+    problems_solved_dict = {}
+
+    for problem in user_info[5]:
+        problems_solved_dict[problem] = rc.get_problem_from_redis(problem_id, problem_pool).display_name
+
+    user_stats['problems_solved'] = [problems_solved_dict[i] for i in problems_solved_dict]
+    user_stats['solutions_bought'] = [problems_solved_dict[i] for i in user_info[6]]
+    user_stats['solutions_sold'] = [problems_solved_dict[i] for i in user_info[7]]
+
+    return str(user_stats)
+
 
 @app.route('/problems')
 @login_required
