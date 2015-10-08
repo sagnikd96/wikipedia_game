@@ -12,7 +12,7 @@ def get_user_from_redis(user, connection_pool):
             return None
 
 def get_problem_from_redis(problem_id, problem_pool):
-    connection = redis.Redis(connection_pool=connection_pool)
-    with RedisWriteLock(connection_pool, problem_id, 0.01, 2):
-        result = Problem.fromString(connection_pool.get(problem_id).decode())
+    connection = redis.Redis(connection_pool=problem_pool)
+    with RedisWriteLock(connection, problem_id, 0.01, 2):
+        result = Problem.fromString(connection.get(problem_id).decode())
         return result

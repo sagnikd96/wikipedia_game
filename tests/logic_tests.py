@@ -30,11 +30,11 @@ class ProblemTests(unittest.TestCase):
 
     def test4(self):
         a = lg.Problem("prob3", "Problem 3", "1", 10, 0.5, ["prob0", "prob1"])
-        result1 = "prob3, Problem 3, 1, 10, 0.5, 1, 10, {prob0 : prob1}"
+        result1 = "prob3, Problem 3, 1, 10, 0.5, 0, 10, {prob0 : prob1}"
         self.assertTrue(str(a) == result1)
         self.assertTrue(lg.Problem.fromString(result1) == a)
         a.submit_solution("1")
-        result2 = "prob3, Problem 3, 1, 10, 0.5, 2, 5, {prob0 : prob1}"
+        result2 = "prob3, Problem 3, 1, 10, 0.5, 1, 5, {prob0 : prob1}"
         self.assertTrue(str(a) == result2)
         self.assertTrue(lg.Problem.fromString(result2) == a)
 
@@ -151,6 +151,18 @@ class UserLogicTests(unittest.TestCase):
         self.assertTrue(lg.UserLogic.fromString(str(b1)) == expected1)
         self.assertTrue(lg.UserLogic.fromString(str(b2)) == expected2)
 
+    def test10(self):
+        b = lg.UserLogic("user1", 100)
+        result = ["user1", 100, 0, 0, 0, [], [], []]
+        self.assertTrue(lg.UserLogic.fromString(str(b)) == result)
+        result[5].append("a1")
+        self.assertTrue(lg.UserLogic.fromString(lg.UserLogic.toString(result)) == result)
+        result[7].append(("a1", "user1", 120))
+        self.assertTrue(lg.UserLogic.fromString(lg.UserLogic.toString(result)) == result)
+        result[5].append("prob2")
+        result[6].append("prob2")
+        self.assertTrue(lg.UserLogic.fromString(lg.UserLogic.toString(result)) == result)
+        result[7].append(("prob2", "user1", 120))
 
 class CommodityTests(unittest.TestCase):
 

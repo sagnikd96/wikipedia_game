@@ -117,17 +117,17 @@ class UserLogic():
         points_for_selling = int(parts[3])
         expenditure = int(parts[4])
 
-        if ", " in parts[5][1:-1]:
+        if parts[5][1:-1] != '':
             problems_solved = list(map(f, parts[5][1:-1].split(", ")))
         else:
             problems_solved = []
 
-        if ", " in parts[6][1:-1]:
+        if parts[6][1:-1] != '':
             solutions_bought = list(map(f, parts[6][1:-1].split(", ")))
         else:
             solutions_bought = []
 
-        if ", " in parts[7][1:-1]:
+        if parts[7][1:-1] != '':
             solutions_sold = list(map(lambda x: Commodity.fromString(x), parts[7][1:-1].split(" :: ")))
         else:
             solutions_sold = []
@@ -139,7 +139,7 @@ class UserLogic():
         name, starting_points, points_for_solving, points_for_selling, expenditure, problems_solved, solutions_bought, solutions_sold = info_tuple
         string_problems_solved = str(problems_solved)
         string_solutions_bought = str(solutions_bought)
-        string_solutions_sold = "[" + " :: ".join(list(map(lambda x: "'" + x + "'", solutions_sold))) + "]"
+        string_solutions_sold = "[" + " :: ".join(map(lambda x: ", ".join(str(i) for i in x), solutions_sold)) + "]"
         return " ::: ".join([name,
                 #self.display_name,
                 str(starting_points),
@@ -229,6 +229,10 @@ class Commodity():
             return (parsed[0], parsed[1], int(parsed[2]))
         except IndexError:
             return None
+
+    @staticmethod
+    def toString(info_tuple):
+        return ", ".join([str(i) for i in info_tuple])
 
     def get_price(self):
         return self.price

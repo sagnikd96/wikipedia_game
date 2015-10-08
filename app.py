@@ -94,7 +94,7 @@ def stats():
     problems_solved_dict = {}
 
     for problem in user_info[5]:
-        problems_solved_dict[problem] = rc.get_problem_from_redis(problem_id, problem_pool).display_name
+        problems_solved_dict[problem] = rc.get_problem_from_redis(problem, problem_pool).display_name
 
     user_stats['problems_solved'] = [problems_solved_dict[i] for i in problems_solved_dict]
     user_stats['solutions_bought'] = [problems_solved_dict[i] for i in user_info[6]]
