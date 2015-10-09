@@ -53,7 +53,7 @@ def login():
 @login_required
 def home():
     display_name = current_user.display_name
-    return render_template('index.html', display_name=display_name)
+    return render_template('index.html', display_name=display_name, logged_in_user=current_user)
 
 @app.route('/logout')
 @login_required
@@ -106,11 +106,6 @@ def stats():
 @app.route('/problems')
 @login_required
 def problems():
-    return "In progress"
-
-@app.route('/market_console')
-@login_required
-def market_console():
     return "In progress"
 
 if __name__=="__main__":
