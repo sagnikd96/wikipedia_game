@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block css_imports %}
+    <link href='static/table.css' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block title %}
+    Stats for {{ logged_in_user.display_name }}
+{% endblock %}
+
+{% block content %}
+    <div id="table_content">
+    <h1>User Stats</h1>
+    <table id="ver-minimalist"
+           width="100%"
+           align="center">
+    <tr>
+        <td>Username</td>
+        <td>{{ logged_in_user.name }}</td>
+    </tr>
+    <tr>
+        <td>Display name</td>
+        <td>{{ logged_in_user.display_name }}</td>
+    </tr>
+    <tr>
+        <td>Current points</td>
+        <td>{{ info_to_render["user_info"]["current_points"] }}</td>
+    </tr>
+    <tr>
+        <td>Starting points</td>
+        <td>{{ info_to_render["user_info"]["starting_points"] }}</td>
+    </tr>
+    <tr>
+        <td>Points for solving</td>
+        <td>{{ info_to_render["user_info"]["points_for_solving"] }}</td>
+    </tr>
+    <tr>
+        <td>Points for selling</td>
+        <td>{{ info_to_render["user_info"]["points_for_selling"] }}</td>
+    </tr>
+    <tr>
+        <td>Expenditure</td>
+        <td>{{ info_to_render["user_info"]["expenditure"] }}</td>
+    </tr>
+    </table>
+    <br>
+    <hr>
+    <h1>Problem Stats</h1>
+    <table id="ver-minimalist"
+        width="100%"
+        align="center">
+        <tr>
+            <th>Problem name</th>
+            <th>Solution obtained</th>
+            <th>Problem solved</th>
+            <th>Solution bought</th>
+            <th>Solution sold</th>
+        </tr>
+        {% for row in info_to_render["table_info"]%}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+{% endblock %}

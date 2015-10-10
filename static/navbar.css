@@ -44,7 +44,7 @@ body {
 }
 
 #table_content h1 {
-    text-align: left;
+    text-align: center;
 }
 
 #content {
@@ -56,7 +56,7 @@ body {
 }
 
 #content h1 {
-    text-align: left;
+    text-align: center;
 }
 
 #content p {

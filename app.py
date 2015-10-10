@@ -5,6 +5,7 @@ from forms import LoginForm, AnswerForm
 from flask.ext.login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from hasher import gen_hash
 from UserTools import User
+from ProblemTools import display_problems_per_user, parseProblemFile, PROBLEM_FILE
 from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB, COMMODITY_DB
 import redis
 import RedisConnect as rc
@@ -94,13 +95,17 @@ def stats():
     problems_solved_dict = {}
 
     for problem in user_info[5]:
-        problems_solved_dict[problem] = rc.get_problem_from_redis(problem, problem_pool).display_name
+        problems_solved_dict[problem] = rc.get_problem_from_redis(problem, problem_pool).name
 
     user_stats['problems_solved'] = [problems_solved_dict[i] for i in problems_solved_dict]
     user_stats['solutions_bought'] = [problems_solved_dict[i] for i in user_info[6]]
     user_stats['solutions_sold'] = [problems_solved_dict[i] for i in user_info[7]]
 
-    return str(user_stats)
+    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+
+    info_to_render = {"user_info": user_stats, "table_info": display_problems_per_user(user_stats, parsed_problem_file)}
+
+    return render_template('stats.html', info_to_render=info_to_render, logged_in_user=current_user)
 
 
 @app.route('/problems')

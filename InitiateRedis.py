@@ -20,8 +20,8 @@ def load_users_to_redis(filename, comment="#"):
 def load_problems_to_redis(filename, comment="#"):
     problem_database = parseProblemFile(PROBLEM_FILE)
     connection = redis.Redis(connection_pool = problem_pool)
-    for problem in problem_database:
-        connection.set(problem, problem_database[problem])
+    for name, problem in problem_database:
+        connection.set(name, problem)
     connection.set("__initiated__", "True")
 
 def check_database_initiated(pool):
