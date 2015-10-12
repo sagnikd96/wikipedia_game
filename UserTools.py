@@ -1,5 +1,7 @@
 from flask.ext.login import UserMixin
 from itertools import takewhile
+import RedisConnect as rc
+import logic as lg
 
 USER_FILE = "user_file.dat"
 
@@ -49,3 +51,17 @@ class User(UserMixin):
             return User.user_database[name][2]
         else:
             return None
+
+def generate_user_stats(username, user_pool):
+    user_info = rc.get_user_from_redis(username, user_pool)
+    user_stats = {}
+    user_stats['display_name'] = User.user_database[username][1]
+    user_stats['current_points'] = lg.UserLogic.scoreFromTuple(user_info)
+    user_stats['starting_points'] = user_info[1]
+    user_stats['points_for_solving'] = user_info[2]
+    user_stats['points_for_selling'] = user_info[3]
+    user_stats['expenditure'] = user_info[4]
+    user_stats['problems_solved'] = user_info[5]
+    user_stats['solutions_bought'] = user_info[6]
+    user_stats['solutions_sold'] = user_info[7]
+    return user_stats

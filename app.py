@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from forms import LoginForm, AnswerForm
 from flask.ext.login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from hasher import gen_hash
-from UserTools import User
+from UserTools import User, generate_user_stats
 from ProblemTools import display_problems_per_user, parseProblemFile, PROBLEM_FILE
 from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB, COMMODITY_DB
 import redis
@@ -82,26 +82,10 @@ def show_scores():
 @app.route('/stats')
 @login_required
 def stats():
-    username = current_user.name
-    user_info = rc.get_user_from_redis(username, user_pool)
-    user_stats = {}
-    user_stats['display_name'] = User.user_database[username][1]
-    user_stats['current_points'] = lg.UserLogic.scoreFromTuple(user_info)
-    user_stats['starting_points'] = user_info[1]
-    user_stats['points_for_solving'] = user_info[2]
-    user_stats['points_for_selling'] = user_info[3]
-    user_stats['expenditure'] = user_info[4]
-
-    problems_solved_dict = {}
-
-    for problem in user_info[5]:
-        problems_solved_dict[problem] = rc.get_problem_from_redis(problem, problem_pool).name
-
-    user_stats['problems_solved'] = [problems_solved_dict[i] for i in problems_solved_dict]
-    user_stats['solutions_bought'] = [problems_solved_dict[i] for i in user_info[6]]
-    user_stats['solutions_sold'] = [problems_solved_dict[i] for i in user_info[7]]
-
     parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+
+    username = current_user.name
+    user_stats = generate_user_stats(username, user_pool)
 
     info_to_render = {"user_info": user_stats, "table_info": display_problems_per_user(user_stats, parsed_problem_file)}
 
