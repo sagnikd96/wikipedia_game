@@ -5,7 +5,7 @@ from forms import LoginForm, AnswerForm
 from flask.ext.login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from hasher import gen_hash
 from UserTools import User, generate_user_stats
-from ProblemTools import display_problems_per_user, parseProblemFile, PROBLEM_FILE
+from ProblemTools import display_problems_per_user, parseProblemFile, PROBLEM_FILE, categorize_problems
 from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB, COMMODITY_DB
 import redis
 import RedisConnect as rc
@@ -95,7 +95,14 @@ def stats():
 @app.route('/problems')
 @login_required
 def problems():
-    return "In progress"
+    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+
+    username = current_user.name
+    user_stats = generate_user_stats(username, user_pool)
+
+    categorized_problems = categorize_problems(user_stats, parsed_problem_file)
+    #return str(categorized_problems)
+    return render_template('problems.html', categorized_problems=categorized_problems, logged_in_user=current_user)
 
 if __name__=="__main__":
     import sys

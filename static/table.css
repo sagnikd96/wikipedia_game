@@ -29,3 +29,24 @@
 {
 	color: #009;
 }
+
+#ver-minimalist a
+{
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+	margin: auto auto;
+	width: auto;
+	text-align: center;
+	border-collapse: collapse;
+	padding: 16px 4px 2px 4px;
+	border-right: 30px solid #fff;
+	border-left: 30px solid #fff;
+	color: #669;
+    text-decoration: none;
+}
+
+#ver-minimalist a:hover
+{
+    text-decoration: underline;
+	color: #009;
+}
