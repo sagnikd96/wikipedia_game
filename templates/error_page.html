@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block css_imports %}
+{% endblock %}
+
+{% block title %}
+  Error
+{% endblock %}
+
+{% block content %}
+  <div id="content">
+      <div class="col-12"
+           style="text-align:center">
+          <h2>{{ error_string }}</h2>
+      </div>
+    </div>
+{% endblock %}

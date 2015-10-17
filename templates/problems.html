@@ -10,42 +10,59 @@
 
 {% block content %}
     <div id="table_content">
+        {% if categorized_problems["to_solve"] %}
         <h1>Problems to solve</h1>
-        <table id="ver-minimalist"
-               width="100%"
-               align="center">
-        {% for name,problem in categorized_problems["to_solve"] %}
-        <tr>
-            <td>{{ problem.display_name }}</td>
-            <td><a href="#">Submit solution</a></td>
-        </tr>
-        {% endfor %}
-        </table>
-        <br>
-        <hr>
-        <h1>Sale candidates</h1>
-        <table id="ver-minimalist"
-               width="100%"
-               align="center">
-        {% for name,problem in categorized_problems["to_sell"] %}
-        <tr>
-            <td>{{ problem.display_name }}</td>
-            <td><a href="#">Sell</a></td>
-        </tr>
-        {% endfor %}
-        </table>
-        <br>
-        <hr>
-        <h1>On sale</h1>
-        <table id="ver-minimalist"
-               width="100%"
-               align="center">
-        {% for name,problem in categorized_problems["on_market"] %}
-        <tr>
-            <td>{{ problem.display_name }}</td>
-            <td><a href="#">Change price</a></td>
-        </tr>
-        {% endfor %}
-        </table>
-        </div>
+            
+            <table  id="ver-minimalist"
+                    width="100%"
+                    align="center">
+            {% for name,problem in categorized_problems["to_solve"] %}
+                <tr>
+                    <td>{{ problem.display_name }}</td>
+                    <td><a href="#">Submit solution</a></td>
+                </tr>
+            {% endfor %}
+            </table>
+            
+            {% if categorized_problems["to_sell"] or categorized_problems["on_market"]%}
+            <br>
+            <hr>
+            {% endif %}
+        {% endif %}
+
+        {% if categorized_problems["to_sell"] %}
+            <h1>Sale candidates</h1>
+            
+            <table  id="ver-minimalist"
+                    width="100%"
+                    align="center">
+            {% for name,problem in categorized_problems["to_sell"] %}
+                <tr>
+                    <td>{{ problem.display_name }}</td>
+                    <td><a href="#">Sell</a></td>
+                </tr>
+            {% endfor %}
+            </table>
+            
+            {% if categorized_problems["on_market"]%}
+            <br>
+            <hr>
+            {% endif %}
+        {% endif %}
+            
+        {% if categorized_problems["on_market"] %}
+            <h1>On sale</h1>
+        
+            <table  id="ver-minimalist"
+                    width="100%"
+                    align="center">
+            {% for name,problem in categorized_problems["on_market"] %}
+                <tr>
+                    <td>{{ problem.display_name }}</td>
+                    <td><a href="#">Change price</a></td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% endif %}
+    </div>
 {% endblock %}

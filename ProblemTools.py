@@ -49,12 +49,14 @@ def categorize_problems(user_stats, parsed_problem_file):
     for name, problem in problems:
 
         if not name in user_stats['problems_solved']:
-            for dependency in problem.dependencies:
-                if dependency in user_stats['problems_solved']:
-                    categories["to_solve"].append((name, problem))
-
             if not problem.dependencies:
                 categories["to_solve"].append((name, problem))
+
+            else:
+                for dependency in problem.dependencies:
+                    if dependency in user_stats['problems_solved']:
+                        categories["to_solve"].append((name, problem))
+                        break
 
         if name in user_stats['problems_solved'] and not name in (i[0] for i in user_stats['solutions_sold']):
             categories["to_sell"].append((name, problem))
