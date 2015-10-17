@@ -108,15 +108,15 @@ def problems():
 @login_required
 def post_solution(prob_name):
     current_problem = None
-    error_string = None
+    error = None
     parsed_problem_file = parseProblemFile(PROBLEM_FILE)
     for name,problem in parsed_problem_file:
         if name == prob_name:
-            current_problem = problem
+            current_problem = lg.Problem.fromString(problem)
             break
 
     if not current_problem:
-        return render_template('error_page.html', logged_in_user=current_user, error_string="You entered a URL for a non-existent problem.")
+        return render_template('error_page.html', logged_in_user=current_user, error="You entered a URL for a non-existent problem.")
 
     username = current_user.name
     user_stats = generate_user_stats(username, user_pool)
@@ -124,17 +124,20 @@ def post_solution(prob_name):
     categorized_problems = categorize_problems(user_stats, parsed_problem_file)
 
     if not prob_name in (name for name,_ in categorized_problems["to_solve"]):
-        return render_template('error_page.html', logged_in_user=current_user, error_string="You have either solved the problem or you are not allowed to solve it.")
+        return render_template('error_page.html', logged_in_user=current_user, error="You have either solved the problem or you are not allowed to solve it.")
 
     form = AnswerForm(request.form)
     if request.method == 'POST':
         submitted_answer = request.form['answer']
         if submitted_answer != current_problem.answer:
-            error_string = "Wrong answer. Try again."
-            return render_template('submit_answer.html', form=form, error_string=error_string, logged_in_user=current_user)
+            if not submitted_answer:
+                error = "Enter an answer"
+            else:
+                error = "Wrong answer. Try again."
+            return render_template('submit_answer.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem)
         else:
             return "Correcto"
-    return render_template('submit_answer.html', form=form, error_string=error_string, logged_in_user=current_user)
+    return render_template('submit_answer.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem)
 
 if __name__=="__main__":
     import sys

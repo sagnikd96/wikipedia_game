@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block css_imports %}
+    <link href='/static/input_form.css' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block title %}
+    Submit solution: {{ current_problem.display_name }}
+{% endblock %}
+
+{% block content %}
+    <div id="table_content">
+    <h1>Submit the solution to {{ (current_problem.display_name).lower() }}</h1>
+    <form method="POST" >
+        {{ form.answer(placeholder="Enter answer") }}
+        {{ form.submit }}
+        {% if error %}
+        <p>{{ error }}</p>
+        {% else %}
+        <br>
+        {% endif %}
+        <input type="submit" value="Submit">
+    </form>
+   </div>
+{% endblock %}
