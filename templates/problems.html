@@ -19,7 +19,7 @@
             {% for name,problem in categorized_problems["to_solve"] %}
                 <tr>
                     <td>{{ problem.display_name }}</td>
-                    <td><a href="#">Submit solution</a></td>
+                    <td><a href="/problems/submit/{{ problem.name }}">Submit solution</a></td>
                 </tr>
             {% endfor %}
             </table>

@@ -136,8 +136,41 @@ def post_solution(prob_name):
                 error = "Wrong answer. Try again."
             return render_template('submit_answer.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem)
         else:
-            return "Correcto"
+            result, points = rc.submit_solution(submitted_answer, current_problem.name, problem_pool)
+            print(result)
+            if result:
+                status = rc.update_user_solution(points, current_problem.name, current_user.name, user_pool)
+                if not status:
+                    return render_template('error_page.html', logged_in_user=current_user, error="Something went wrong. Try submitting your answer again.")
+                else:
+                    return render_template('success_page.html', logged_in_user=current_user, message="Your answer was correct. You gained {0} points.".format(points))
+
     return render_template('submit_answer.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem)
+
+@app.route('/solutions/sell/<problem_name>', methods=['GET', 'POST'])
+@login_required
+def put_solution_on_market(problem_name):
+    current_problem = None
+    error = None
+    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+    for name,problem in parsed_problem_file:
+        if name == problem_name:
+            current_problem = lg.Problem.fromString(problem)
+            break
+
+    if not current_problem:
+        error = "You entered a URL for a non-existent problem."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+
+    username = current_user.name
+    user_stats = generate_user_stats(username, user_pool)
+
+    categorized_problems = categorize_problems(user_stats, parsed_problem_file)
+
+    if not problem_name in (name for name,_ in categorized_problems['to_sell']):
+        return render_template('error_page.html', logged_in_user=current_user, error="You have either already put up the solution for sale, or you have not solved the problem yet.")
+
+    return "Bleh"
 
 if __name__=="__main__":
     import sys
