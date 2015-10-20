@@ -186,8 +186,48 @@ def put_solution_on_market(problem_name):
             error = "The price must be a non-negative integer."
             return render_template('sale_page.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_NEW_ITEM)
 
-
     return render_template('sale_page.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_NEW_ITEM)
+
+@app.route('/solutions/change_price/<problem_name>', methods=['GET', 'POST'])
+@login_required
+def change_solution_price(problem_name):
+    current_problem = None
+    error = None
+    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+    for name, problem in parsed_problem_file:
+        if name == problem_name:
+            current_problem = lg.Problem.fromString(problem)
+            break
+
+    if not current_problem:
+        error = "You entered a URL for a non-existent problem."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+
+    username = current_user.name
+    user_stats = generate_user_stats(username, user_pool)
+
+    categorized_problems = categorize_problems(user_stats, parsed_problem_file)
+
+    if not problem_name in (name for name,_ in categorized_problems['on_market']):
+        error = "You have not put this problem up on the market yet."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+
+    form = PriceForm(request.form)
+    if request.method == 'POST':
+        price_requested_str = request.form['price']
+        try:
+            price_requested = int(price_requested_str)
+            if price_requested < 0:
+                error = "The price must be a non-negative integer."
+                return render_template('change_price.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_CHANGE_PRICE)
+            result = rc.change_solution_price(current_user.name, current_problem.name, price_requested, user_pool, User.user_database)
+            return render_template('success_page.html', logged_in_user=current_user, message = "You successfully changed the price of the solution of {0} to {1} points.".format(current_problem.display_name.lower(), price_requested))
+
+        except ValueError:
+            error = "The price must be a non-negative integer."
+            return render_template('change_price.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_CHANGE_PRICE)
+
+    return render_template('change_price.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_CHANGE_PRICE)
 
 if __name__=="__main__":
     import sys

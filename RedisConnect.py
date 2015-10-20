@@ -56,3 +56,30 @@ def sell_solution(user_id, prob_id, price, user_pool):
         user_info[4] += MARKET_FEE_NEW_ITEM
         connection.set(user_id, UserLogic.toString(user_info))
         return True
+
+def change_solution_price(user_id, prob_id, new_price, user_pool, user_list):
+    connection = redis.Redis(connection_pool=user_pool)
+    all_commodities = list_all_commodities(user_list, user_pool)
+    flag = False
+    for prob,user,_ in all_commodities:
+        if prob==prob_id and user==user_id:
+            flag=True
+            break
+
+    if not flag:
+        return False
+
+    with RedisWriteLock(connection,  user_id, RETRY_INTERVAL, EXPIRE_TIME):
+        user_info = UserLogic.fromString(connection.get(user_id).decode())
+        found = False
+        for index,(prob, user, _) in enumerate(user_info[7]):
+            if prob==prob_id and user==user_id:
+                found = True
+                break
+        if not found:
+            return False
+        user_info[7].pop(index)
+        user_info[7].append((prob_id, user_id, new_price))
+        user_info[4] += MARKET_FEE_CHANGE_PRICE
+        connection.set(user_id, UserLogic.toString(user_info))
+        return True
