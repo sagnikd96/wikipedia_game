@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block css_imports %}
+    <link href='/static/input_form.css' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block title %}
+    Sell solution: {{ current_problem.display_name }}
+{% endblock %}
+
+{% block content %}
+    <div id="table_content">
+        <h1>Sell the solution to {{ current_problem.display_name.lower() }}</h1>
+        <p>For what price do you want to sell the solution of {{ (current_problem.display_name).lower() }}? To put up the solution for sale, a charge of {{ market_fee }} points will be incurred.</p>
+    <form method="POST" >
+        {{ form.price(placeholder="Enter price") }}
+        {{ form.submit }}
+        {% if error %}
+        <p>{{ error }}</p>
+        {% else %}
+        <br>
+        {% endif %}
+        <input type="submit" value="Submit">
+    </form>
+   </div>
+{% endblock %}

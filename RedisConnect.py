@@ -1,4 +1,4 @@
-from logic import Problem, UserLogic, Commodity
+from logic import Problem, UserLogic, Commodity, MARKET_FEE_NEW_ITEM, MARKET_FEE_CHANGE_PRICE
 from RedisLocks import RedisWriteLock
 import redis
 
@@ -39,3 +39,20 @@ def update_user_solution(points, problem_id, user_id, user_pool):
             user_info[2] += points
             connection.set(user_id, UserLogic.toString(user_info))
             return True
+
+def list_all_commodities(user_list, user_pool):
+    commodities = []
+    for user in user_list:
+        user_info = get_user_from_redis(user, user_pool)
+        for commodity in user_info[7]:
+            commodities.append(commodity)
+    return commodities
+
+def sell_solution(user_id, prob_id, price, user_pool):
+    connection = redis.Redis(connection_pool=user_pool)
+    with RedisWriteLock(connection, user_id, RETRY_INTERVAL, EXPIRE_TIME):
+        user_info = UserLogic.fromString(connection.get(user_id).decode())
+        user_info[7].append((prob_id, user_id, price))
+        user_info[4] += MARKET_FEE_NEW_ITEM
+        connection.set(user_id, UserLogic.toString(user_info))
+        return True

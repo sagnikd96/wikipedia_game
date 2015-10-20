@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from flask import Flask, render_template, redirect, url_for, request, session, flash, g
-from forms import LoginForm, AnswerForm
+from forms import LoginForm, AnswerForm, PriceForm
 from flask.ext.login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from hasher import gen_hash
 from UserTools import User, generate_user_stats
@@ -168,9 +168,26 @@ def put_solution_on_market(problem_name):
     categorized_problems = categorize_problems(user_stats, parsed_problem_file)
 
     if not problem_name in (name for name,_ in categorized_problems['to_sell']):
-        return render_template('error_page.html', logged_in_user=current_user, error="You have either already put up the solution for sale, or you have not solved the problem yet.")
+        error = "You have either already put up the solution for sale, or you have not solved the problem yet."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
 
-    return "Bleh"
+    form = PriceForm(request.form)
+    if request.method == 'POST':
+        price_requested_str = request.form['price']
+        try:
+            price_requested = int(price_requested_str)
+            if price_requested < 0:
+                error = "The price must be a non-negative integer."
+                return render_template('sale_page.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_NEW_ITEM)
+            rc.sell_solution(current_user.name, current_problem.name, price_requested, user_pool)
+            return render_template('success_page.html', logged_in_user=current_user, message="You successfully put up the solution of {0} for the price of {1} points.".format(current_problem.display_name.lower(), price_requested))
+
+        except ValueError:
+            error = "The price must be a non-negative integer."
+            return render_template('sale_page.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_NEW_ITEM)
+
+
+    return render_template('sale_page.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_NEW_ITEM)
 
 if __name__=="__main__":
     import sys
