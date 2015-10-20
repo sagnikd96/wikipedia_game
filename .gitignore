@@ -58,6 +58,7 @@ target/
 
 # Vim swap files
 *.swp
+.*~
 
 # Python venv
 venv
