@@ -39,4 +39,10 @@ def delete_all_locks(pools):
 
 if __name__=="__main__":
     from sys import argv
-    load_users_to_redis(argv[-1])
+    if len(argv)<=2:
+        print("Usage: python initiateRedis.py <user_file> <problem_file>")
+    else:
+        user_filename = argv[1]
+        problem_filename = argv[2]
+        load_users_to_redis(user_filename)
+        load_problems_to_redis(problem_filename)
