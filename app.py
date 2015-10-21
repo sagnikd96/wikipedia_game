@@ -277,7 +277,7 @@ def buy_solution(problem_name, seller_name):
 
     categorized_problems = categorize_problems(user_stats, parsed_problem_file)
 
-    if not prob_name in (name for name,_ in categorized_problems["to_solve"]):
+    if not problem_name in (name for name,_ in categorized_problems["to_solve"]):
         return render_template('error_page.html', logged_in_user=current_user, error="You have either solved the problem or you are not allowed to access it yet.")
 
     all_commodities = rc.list_all_commodities(User.user_database, user_pool)
@@ -290,7 +290,17 @@ def buy_solution(problem_name, seller_name):
         error = "The seller is not selling the solution to this problem."
         return render_template('error_page.html', logged_in_user=current_user, error=error)
 
-   
+    rc.pay_user(seller_name, price_requested, user_pool)
+    rc.charge_user(current_user.name, price_requested, user_pool)
+    result, points = rc.submit_solution(current_problem.answer, current_problem.name, problem_pool)
+    if not result:
+        error = "Something really bad happened."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+    else:
+        rc.update_user_solution(points, current_problem.name, current_user.name, user_pool)
+        rc.add_to_purchases(current_user.name, current_problem.name, user_pool)
+        message = "You bought the solution of {0} from {1} at the price of {2}".format(current_problem.display_name.lower(), get_display_name(seller_name), price_requested)
+        return render_template('success_page.html', logged_in_user=current_user, message=message)
 
 
 if __name__=="__main__":
