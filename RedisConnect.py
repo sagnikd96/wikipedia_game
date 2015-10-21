@@ -57,6 +57,13 @@ def sell_solution(user_id, prob_id, price, user_pool):
         connection.set(user_id, UserLogic.toString(user_info))
         return True
 
+def pay_user(user_id, price, user_pool):
+    connection = redis.Redis(connection_pool=user_pool)
+    with RedisWriteLock(connection, user_id, RETRY_INTERVAL, EXPIRE_TIME):
+        user_info = UserLogic.fromString(connection.get(user_id).decode())
+        user_info[3] += price
+        connection.set(user_id, UserLogic.toString(user_info))
+
 def change_solution_price(user_id, prob_id, new_price, user_pool, user_list):
     connection = redis.Redis(connection_pool=user_pool)
     all_commodities = list_all_commodities(user_list, user_pool)

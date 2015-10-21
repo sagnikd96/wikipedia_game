@@ -258,6 +258,41 @@ def list_solutions_for_sale(problem_name):
     problem_commodities = [(prob, user, get_display_name(user), price) for (prob, user, price) in all_commodities if prob == current_problem.name]
     return render_template('list_problems.html', logged_in_user=current_user, current_problem=current_problem, commodities=problem_commodities)
 
+@app.route('/solutions/buy/<problem_name>/<seller_name>')
+@login_required
+def buy_solution(problem_name, seller_name):
+    current_problem = None
+    error = None
+    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+    for name,problem in parsed_problem_file:
+        if name == problem_name:
+            current_problem = lg.Problem.fromString(problem)
+            break
+
+    if not current_problem:
+        return render_template('error_page.html', logged_in_user=current_user, error="You entered a URL for a non-existent problem.")
+
+    username = current_user.name
+    user_stats = generate_user_stats(username, user_pool)
+
+    categorized_problems = categorize_problems(user_stats, parsed_problem_file)
+
+    if not prob_name in (name for name,_ in categorized_problems["to_solve"]):
+        return render_template('error_page.html', logged_in_user=current_user, error="You have either solved the problem or you are not allowed to access it yet.")
+
+    all_commodities = rc.list_all_commodities(User.user_database, user_pool)
+    found = False
+    for prob,user,price_requested in all_commodities:
+        if prob==problem_name and user==seller_name:
+            found = True
+            break
+    if not found:
+        error = "The seller is not selling the solution to this problem."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+
+   
+
+
 if __name__=="__main__":
     import sys
     if check_database_initiated(user_pool):
