@@ -1,0 +1,35 @@
+{% extends "base.html"%}
+
+{% block css_imports %}
+    <link href='/static/table.css' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block title %}
+    Solutions for sale: {{ current_problem.display_name }}
+{% endblock %}
+
+{% block content %}
+    <div id="table_content">
+        {% if commodities %}
+        <h1>Sellers</h1>
+            
+            <table  id="ver-minimalist"
+                    width="100%"
+                    align="center">
+                <tr>
+                    <th>Seller</th>
+                    <th>Price</th>
+                    <th>Link</th>
+                </tr>
+            {% for prob_id, username, user_display_name, price in commodities %}
+                <tr>
+                    <td>{{ user_display_name }}</td>
+                    <td>{{ price }}</td>
+                    <td><a href="#">Buy</a></td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            <h1>No solutions for this problem appear to be on sale.</h1>
+        {% endif %}
+{% endblock %}

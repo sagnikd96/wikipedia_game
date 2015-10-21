@@ -52,6 +52,12 @@ class User(UserMixin):
         else:
             return None
 
+def get_display_name(username):
+    if User.get(username):
+        return User.user_database[username][1]
+    else:
+        return None
+
 def generate_user_stats(username, user_pool):
     user_info = rc.get_user_from_redis(username, user_pool)
     user_stats = {}

@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from forms import LoginForm, AnswerForm, PriceForm
 from flask.ext.login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from hasher import gen_hash
-from UserTools import User, generate_user_stats
+from UserTools import User, generate_user_stats, get_display_name
 from ProblemTools import display_problems_per_user, parseProblemFile, PROBLEM_FILE, categorize_problems
 from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB, COMMODITY_DB
 import redis
@@ -221,13 +221,42 @@ def change_solution_price(problem_name):
                 error = "The price must be a non-negative integer."
                 return render_template('change_price.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_CHANGE_PRICE)
             result = rc.change_solution_price(current_user.name, current_problem.name, price_requested, user_pool, User.user_database)
-            return render_template('success_page.html', logged_in_user=current_user, message = "You successfully changed the price of the solution of {0} to {1} points.".format(current_problem.display_name.lower(), price_requested))
+            if result:
+                return render_template('success_page.html', logged_in_user=current_user, message = "You successfully changed the price of the solution of {0} to {1} points.".format(current_problem.display_name.lower(), price_requested))
+            else:
+                return render_template('error_page.html', logged_in_user=current_user, error="Something wrong happened. Try again.")
 
         except ValueError:
             error = "The price must be a non-negative integer."
             return render_template('change_price.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_CHANGE_PRICE)
 
     return render_template('change_price.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_CHANGE_PRICE)
+
+@app.route('/solutions/list/<problem_name>')
+@login_required
+def list_solutions_for_sale(problem_name):
+    current_problem = None
+    error = None
+    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+    for name,problem in parsed_problem_file:
+        if name == problem_name:
+            current_problem = lg.Problem.fromString(problem)
+            break
+
+    if not current_problem:
+        return render_template('error_page.html', logged_in_user=current_user, error="You entered a URL for a non-existent problem.")
+
+    username = current_user.name
+    user_stats = generate_user_stats(username, user_pool)
+
+    categorized_problems = categorize_problems(user_stats, parsed_problem_file)
+
+    if not problem_name in (name for name,_ in categorized_problems['to_solve']):
+        return render_template('error_page.html', logged_in_user=current_user, error="You have either already solved the problem, or you are not allowed to solve it.")
+
+    all_commodities = rc.list_all_commodities(User.user_database, user_pool)
+    problem_commodities = [(prob, user, get_display_name(user), price) for (prob, user, price) in all_commodities if prob == current_problem.name]
+    return render_template('list_problems.html', logged_in_user=current_user, current_problem=current_problem, commodities=problem_commodities)
 
 if __name__=="__main__":
     import sys
