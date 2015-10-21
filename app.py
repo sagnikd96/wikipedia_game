@@ -11,17 +11,19 @@ import redis
 import RedisConnect as rc
 from  InitiateRedis import check_database_initiated
 import logic as lg
+from flask_conf import SECRET_KEY
 
 app = Flask(__name__)
 
-app.secret_key = "my precious"
+app.secret_key = SECRET_KEY
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
 user_pool = redis.ConnectionPool(host=HOSTNAME, port=PORT, db=USER_DB)
 problem_pool = redis.ConnectionPool(host=HOSTNAME, port=PORT, db=PROBLEM_DB)
-commodity_pool = redis.ConnectionPool(host=HOSTNAME, port=PORT, db=COMMODITY_DB)
+
+parsed_problem_file = parseProblemFile(PROBLEM_FILE)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -82,8 +84,6 @@ def show_scores():
 @app.route('/stats')
 @login_required
 def stats():
-    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
-
     username = current_user.name
     user_stats = generate_user_stats(username, user_pool)
 
@@ -95,8 +95,6 @@ def stats():
 @app.route('/problems')
 @login_required
 def problems():
-    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
-
     username = current_user.name
     user_stats = generate_user_stats(username, user_pool)
 
@@ -109,7 +107,6 @@ def problems():
 def post_solution(prob_name):
     current_problem = None
     error = None
-    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
     for name,problem in parsed_problem_file:
         if name == prob_name:
             current_problem = lg.Problem.fromString(problem)
@@ -152,7 +149,6 @@ def post_solution(prob_name):
 def put_solution_on_market(problem_name):
     current_problem = None
     error = None
-    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
     for name,problem in parsed_problem_file:
         if name == problem_name:
             current_problem = lg.Problem.fromString(problem)
@@ -197,7 +193,6 @@ def put_solution_on_market(problem_name):
 def change_solution_price(problem_name):
     current_problem = None
     error = None
-    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
     for name, problem in parsed_problem_file:
         if name == problem_name:
             current_problem = lg.Problem.fromString(problem)
@@ -246,7 +241,6 @@ def change_solution_price(problem_name):
 def list_solutions_for_sale(problem_name):
     current_problem = None
     error = None
-    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
     for name,problem in parsed_problem_file:
         if name == problem_name:
             current_problem = lg.Problem.fromString(problem)
@@ -272,7 +266,6 @@ def list_solutions_for_sale(problem_name):
 def buy_solution(problem_name, seller_name):
     current_problem = None
     error = None
-    parsed_problem_file = parseProblemFile(PROBLEM_FILE)
     for name,problem in parsed_problem_file:
         if name == problem_name:
             current_problem = lg.Problem.fromString(problem)

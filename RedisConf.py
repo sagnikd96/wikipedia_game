@@ -1,3 +1,5 @@
+# Configuration options for redis server
+
 HOSTNAME = "localhost"
 PORT = 6379
 USER_DB = 0

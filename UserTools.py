@@ -2,8 +2,8 @@ from flask.ext.login import UserMixin
 from itertools import takewhile
 import RedisConnect as rc
 import logic as lg
+from flask_conf import USER_FILE
 
-USER_FILE = "user_file.dat"
 
 def decomment(filename, comment="#"):
     f = lambda x: x != comment

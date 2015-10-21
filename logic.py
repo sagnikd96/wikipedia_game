@@ -1,5 +1,4 @@
-MARKET_FEE_NEW_ITEM = 5
-MARKET_FEE_CHANGE_PRICE = 5
+from flask_conf import MARKET_FEE_NEW_ITEM, MARKET_FEE_CHANGE_PRICE
 
 class Problem():
     def __init__(self, name, display_name, answer, base_points, multiplier, dependencies):

@@ -1,9 +1,7 @@
 from logic import Problem, UserLogic, Commodity, MARKET_FEE_NEW_ITEM, MARKET_FEE_CHANGE_PRICE
 from RedisLocks import RedisWriteLock
 import redis
-
-RETRY_INTERVAL = 0.01
-EXPIRE_TIME = 2
+from flask_conf import RETRY_INTERVAL, EXPIRE_TIME
 
 def get_user_from_redis(user, connection_pool):
     connection = redis.Redis(connection_pool=connection_pool)

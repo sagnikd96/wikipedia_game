@@ -3,8 +3,7 @@ from UserTools import USER_FILE, parse_user_file
 from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB
 from logic import UserLogic
 from ProblemTools import parseProblemFile, PROBLEM_FILE
-
-STARTING_POINTS = 100
+from flask_conf import STARTING_POINTS
 
 user_pool = redis.ConnectionPool(host=HOSTNAME, port=PORT, db=USER_DB)
 problem_pool = redis.ConnectionPool(host=HOSTNAME, port=PORT, db=PROBLEM_DB)

@@ -1,8 +1,7 @@
 from itertools import takewhile
 from UserTools import decomment
 from logic import Problem
-
-PROBLEM_FILE = "problem_file.dat"
+from flask_conf import PROBLEM_FILE
 
 def parseProblemFile(filename, comment="#"):
     problems = []
