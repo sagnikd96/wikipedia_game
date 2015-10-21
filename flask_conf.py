@@ -6,6 +6,7 @@ MARKET_FEE_CHANGE_PRICE = 5
 # File paths
 PROBLEM_FILE = "problem_file.dat"
 USER_FILE = "user_file.dat"
+LOG_DIRECTORY = "logs/"
 
 # Redis connection options
 RETRY_INTERVAL = 0.01

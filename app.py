@@ -12,6 +12,7 @@ import RedisConnect as rc
 from  InitiateRedis import check_database_initiated
 import logic as lg
 from flask_conf import SECRET_KEY
+from log_to_users import log_submission, log_purchase, log_on_market, log_changed_price
 
 app = Flask(__name__)
 
@@ -134,12 +135,12 @@ def post_solution(prob_name):
             return render_template('submit_answer.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem)
         else:
             result, points = rc.submit_solution(submitted_answer, current_problem.name, problem_pool)
-            print(result)
             if result:
                 status = rc.update_user_solution(points, current_problem.name, current_user.name, user_pool)
                 if not status:
                     return render_template('error_page.html', logged_in_user=current_user, error="Something went wrong. Try submitting your answer again.")
                 else:
+                    log_submission(current_user.name, current_problem.name, points)
                     return render_template('success_page.html', logged_in_user=current_user, message="Your answer was correct. You gained {0} points.".format(points))
 
     return render_template('submit_answer.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem)
@@ -180,6 +181,7 @@ def put_solution_on_market(problem_name):
                 error = "The price must be a non-negative integer."
                 return render_template('sale_page.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_NEW_ITEM)
             rc.sell_solution(current_user.name, current_problem.name, price_requested, user_pool)
+            log_on_market(current_user.name, current_problem.name, price_requested, lg.MARKET_FEE_NEW_ITEM)
             return render_template('success_page.html', logged_in_user=current_user, message="You successfully put up the solution of {0} for the price of {1} points.".format(current_problem.display_name.lower(), price_requested))
 
         except ValueError:
@@ -225,6 +227,7 @@ def change_solution_price(problem_name):
                 error = "The price must be a non-negative integer."
                 return render_template('change_price.html', form=form, error=error, logged_in_user=current_user, current_problem=current_problem, market_fee=lg.MARKET_FEE_CHANGE_PRICE)
             result = rc.change_solution_price(current_user.name, current_problem.name, price_requested, user_pool, User.user_database)
+            log_changed_price(current_user.name, current_problem.name, price_requested, lg.MARKET_FEE_CHANGE_PRICE)
             if result:
                 return render_template('success_page.html', logged_in_user=current_user, message = "You successfully changed the price of the solution of {0} to {1} points.".format(current_problem.display_name.lower(), price_requested))
             else:
@@ -305,6 +308,7 @@ def buy_solution(problem_name, seller_name):
     else:
         rc.update_user_solution(points, current_problem.name, current_user.name, user_pool)
         rc.add_to_purchases(current_user.name, current_problem.name, user_pool)
+        log_purchase(current_user.name, seller_name, current_problem.name, price_requested, points)
         message = "You bought the solution of {0} from {1} at the price of {2}".format(current_problem.display_name.lower(), get_display_name(seller_name), price_requested)
         return render_template('success_page.html', logged_in_user=current_user, message=message)
 
