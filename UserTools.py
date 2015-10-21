@@ -58,6 +58,10 @@ def get_display_name(username):
     else:
         return None
 
+def get_user_points(username, user_pool):
+    user_info = rc.get_user_from_redis(username, user_pool)
+    return lg.UserLogic.scoreFromTuple(user_info)
+
 def generate_user_stats(username, user_pool):
     user_info = rc.get_user_from_redis(username, user_pool)
     user_stats = {}

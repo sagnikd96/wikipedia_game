@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from forms import LoginForm, AnswerForm, PriceForm
 from flask.ext.login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from hasher import gen_hash
-from UserTools import User, generate_user_stats, get_display_name
+from UserTools import User, generate_user_stats, get_display_name, get_user_points
 from ProblemTools import display_problems_per_user, parseProblemFile, PROBLEM_FILE, categorize_problems
 from RedisConf import HOSTNAME, PORT, USER_DB, PROBLEM_DB, COMMODITY_DB
 import redis
@@ -171,6 +171,10 @@ def put_solution_on_market(problem_name):
         error = "You have either already put up the solution for sale, or you have not solved the problem yet."
         return render_template('error_page.html', logged_in_user=current_user, error=error)
 
+    if get_user_points(username, user_pool) < lg.MARKET_FEE_NEW_ITEM:
+        error = "You don't have enough points to put up the solution on market."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+
     form = PriceForm(request.form)
     if request.method == 'POST':
         price_requested_str = request.form['price']
@@ -211,6 +215,11 @@ def change_solution_price(problem_name):
     if not problem_name in (name for name,_ in categorized_problems['on_market']):
         error = "You have not put this problem up on the market yet."
         return render_template('error_page.html', logged_in_user=current_user, error=error)
+
+    if get_user_points(username, user_pool) < lg.MARKET_FEE_CHANGE_PRICE:
+        error = "You don't have enough points to change the price of the solution."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+
 
     form = PriceForm(request.form)
     if request.method == 'POST':
@@ -288,6 +297,10 @@ def buy_solution(problem_name, seller_name):
             break
     if not found:
         error = "The seller is not selling the solution to this problem."
+        return render_template('error_page.html', logged_in_user=current_user, error=error)
+
+    if get_user_points(username, user_pool) < price_requested:
+        error = "You don't have enough points to buy the solution to this problem."
         return render_template('error_page.html', logged_in_user=current_user, error=error)
 
     rc.pay_user(seller_name, price_requested, user_pool)

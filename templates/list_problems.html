@@ -25,7 +25,7 @@
                 <tr>
                     <td>{{ user_display_name }}</td>
                     <td>{{ price }}</td>
-                    <td><a href="#">Buy</a></td>
+                    <td><a href="/solutions/buy/{{ prob_id }}/{{ username }}" onclick="return confirm ('Are you sure you want to buy the solution for {{ price }} points?')">Buy</a></td>
                 </tr>
             {% endfor %}
             </table>

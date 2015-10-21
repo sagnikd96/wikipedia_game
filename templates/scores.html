@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block css_imports %}
   <link href='static/table.css' rel='stylesheet' type='text/css'>
 {% endblock %}
@@ -33,4 +32,11 @@
     {% endfor %}
     </table>
     </div>
+
+{% if not logged_in_user %}
+    <script type="text/javascript">
+        setTimeout(function () { location.reload(true); }, 5000);
+    </script>
+{% endif %}
+
 {% endblock %}
