@@ -312,7 +312,7 @@ def buy_solution(problem_name, seller_name):
         message = "You bought the solution of {0} from {1} at the price of {2}".format(current_problem.display_name.lower(), get_display_name(seller_name), price_requested)
         return render_template('success_page.html', logged_in_user=current_user, message=message)
 
-
+"""
 if __name__=="__main__":
     import sys
     if check_database_initiated(user_pool):
@@ -320,3 +320,4 @@ if __name__=="__main__":
     else:
         print("Users not initiated")
         sys.exit(1)
+"""
