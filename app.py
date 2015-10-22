@@ -14,6 +14,8 @@ import logic as lg
 from flask_conf import SECRET_KEY
 from log_to_users import log_submission, log_purchase, log_on_market, log_changed_price
 
+from werkzeug.contrib.fixers import ProxyFix
+
 app = Flask(__name__)
 
 app.secret_key = SECRET_KEY
@@ -25,6 +27,8 @@ user_pool = redis.ConnectionPool(host=HOSTNAME, port=PORT, db=USER_DB)
 problem_pool = redis.ConnectionPool(host=HOSTNAME, port=PORT, db=PROBLEM_DB)
 
 parsed_problem_file = parseProblemFile(PROBLEM_FILE)
+
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -309,7 +313,7 @@ def buy_solution(problem_name, seller_name):
         rc.update_user_solution(points, current_problem.name, current_user.name, user_pool)
         rc.add_to_purchases(current_user.name, current_problem.name, user_pool)
         log_purchase(current_user.name, seller_name, current_problem.name, price_requested, points)
-        message = "You bought the solution of {0} from {1} at the price of {2}".format(current_problem.display_name.lower(), get_display_name(seller_name), price_requested)
+        message = "You bought the solution of {0} from {1} at the price of {2} points.".format(current_problem.display_name.lower(), get_display_name(seller_name), price_requested)
         return render_template('success_page.html', logged_in_user=current_user, message=message)
 
 """
