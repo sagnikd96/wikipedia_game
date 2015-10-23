@@ -1,5 +1,5 @@
 body {
-    background: url('images/background.png') no-repeat fixed center center;
+    /*background: url('images/background.png') no-repeat fixed center center;*/
     background-color: white;
     background-size: cover;
     font-family: Montserrat;
@@ -20,7 +20,9 @@ body {
     padding: 20px;
     background: white;
     opacity: 1;
-    border-radius: 5px;
+    border-style: solid;
+    border-radius: 10px;
+    border-color: #4682B4;
     border-top: 5px solid #4682B4;
     margin: 0 auto;
 }
