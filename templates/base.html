@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <link href='/static/navbar.css' rel='stylesheet' type='text/css'>
+<link href='/static/footer.css' rel='stylesheet' type='text/css'>
 {% block css_imports %}{% endblock %}
 
 <title>{% block title %}{% endblock %}</title>
-  
+
 <body>
   <div id="navigation">
     {% if logged_in_user %}
@@ -18,4 +19,7 @@
     {% endif %}
   </div>
   {% block content %}{% endblock %}
+<div id="pravega-logo" class="pravega-logo" ></div>
+<div id="flask-powered" class="flask-powered"></div>
+<div id="vim-powered" class="vim-powered"></div>
 </body>

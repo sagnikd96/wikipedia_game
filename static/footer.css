@@ -1,0 +1,26 @@
+.pravega-logo {
+    width: 250px;
+    height: 150px;
+    background: url('/static/images/vdot_icon.png') no-repeat;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+}
+
+.flask-powered {
+    width: 130px;
+    height: 30px;
+    background: url('/static/images/flask.png') no-repeat;
+    position: fixed;
+    bottom: 10px;
+    right: 130px;
+}
+
+.vim-powered {
+    width: 100px;
+    height: 40px;
+    background: url('/static/images/vim.png') no-repeat;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
