@@ -14,6 +14,7 @@ def display_problems_per_user(user_stats, parsed_problem_file):
     table_to_display = []
     for name, problem_string in parsed_problem_file:
         display_name = Problem.fromString(problem_string).display_name
+        answer = Problem.fromString(problem_string).answer
         row = []
         row.append(display_name)
         #row.append(problem_string)
@@ -37,6 +38,11 @@ def display_problems_per_user(user_stats, parsed_problem_file):
             row.append("Yes")
         else:
             row.append("No")
+
+        if name in user_stats['problems_solved']:
+            row.append(answer)
+        else:
+            row.append("n/a")
 
         table_to_display.append(row)
 

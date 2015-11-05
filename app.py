@@ -96,7 +96,6 @@ def stats():
 
     return render_template('stats.html', info_to_render=info_to_render, logged_in_user=current_user)
 
-
 @app.route('/problems')
 @login_required
 def problems():
@@ -313,7 +312,7 @@ def buy_solution(problem_name, seller_name):
         rc.update_user_solution(points, current_problem.name, current_user.name, user_pool)
         rc.add_to_purchases(current_user.name, current_problem.name, user_pool)
         log_purchase(current_user.name, seller_name, current_problem.name, price_requested, points)
-        message = "You bought the solution of {0} from {1} at the price of {2} points.".format(current_problem.display_name.lower(), get_display_name(seller_name), price_requested)
+        message = "You bought the solution of {0} from {1} at the price of {2} points. Check the stats page for the solution".format(current_problem.display_name.lower(), get_display_name(seller_name), price_requested)
         return render_template('success_page.html', logged_in_user=current_user, message=message)
 
 """
