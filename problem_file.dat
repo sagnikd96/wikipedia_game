@@ -1,3 +1,0 @@
-prob1, Problem 1, forty two, 100, 0.4 # Linda easy
-prob2, Problem 2, forty two plus 1, 100, 0.9, prob1 # tarher ghar
-prob3, Problem 3, forty two minus 1, 1000, 1, prob1, prob2 # o carnt spale
